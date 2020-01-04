@@ -188,11 +188,12 @@ impl Direction {
 #[derive(Clone, Copy, Debug)]
 struct Segment {
     pos: GridPosition,
+    dir: Direction,
 }
 
 impl Segment {
-    pub fn new(pos: GridPosition) -> Self {
-        Segment { pos }
+    pub fn new(pos: GridPosition, dir: Direction) -> Self {
+        Segment { pos, dir }
     }
 }
 
@@ -268,9 +269,9 @@ impl Snake {
         let mut body = LinkedList::new();
         // Our snake will initially have a head and one body segment,
         // and will be moving to the right.
-        body.push_back(Segment::new((pos.x - 1, pos.y).into()));
+        body.push_back(Segment::new((pos.x - 1, pos.y).into(), Direction::Right));
         Snake {
-            head: Segment::new(pos),
+            head: Segment::new(pos, Direction::Right),
             dir: Direction::Right,
             last_update_dir: Direction::Right,
             body: body,
@@ -316,7 +317,7 @@ impl Snake {
         let new_head_pos = GridPosition::new_from_move(self.head.pos, self.dir);
         // Next we create a new segment will be our new head segment using the
         // new position we just made.
-        let new_head = Segment::new(new_head_pos);
+        let new_head = Segment::new(new_head_pos, self.dir);
         // Then we push our current head Segment onto the front of our body
         self.body.push_front(self.head);
         // And finally make our actual head the new Segment we created. This has
@@ -353,13 +354,42 @@ impl Snake {
         for seg in self.body.iter() {
             // Again we set the color (in this case an orangey color)
             // and then draw the Rect that we convert that Segment's position into
-            let rectangle = graphics::Mesh::new_rectangle(
-                ctx,
-                graphics::DrawMode::fill(),
-                seg.pos.into(),
-                [0.3, 0.3, 0.0, 1.0].into(),
-            )?;
-            graphics::draw(ctx, &rectangle, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
+            if seg.dir == Direction::Right {
+                let rectangle = graphics::Mesh::new_rectangle(
+                    ctx,
+                    graphics::DrawMode::fill(),
+                    seg.pos.into(),
+                    [0.0, 0.0, 0.0, 1.0].into(),
+                )?;
+                graphics::draw(ctx, &rectangle, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
+            }
+            else if seg.dir == Direction::Up {
+                let rectangle = graphics::Mesh::new_rectangle(
+                    ctx,
+                    graphics::DrawMode::fill(),
+                    seg.pos.into(),
+                    [0.3, 0.3, 0.25, 1.0].into(),
+                )?;
+                graphics::draw(ctx, &rectangle, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
+            }
+            else if seg.dir == Direction::Left {
+                let rectangle = graphics::Mesh::new_rectangle(
+                    ctx,
+                    graphics::DrawMode::fill(),
+                    seg.pos.into(),
+                    [0.3, 0.3, 0.5, 1.0].into(),
+                )?;
+                graphics::draw(ctx, &rectangle, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
+            }
+            else if seg.dir == Direction::Down {
+                let rectangle = graphics::Mesh::new_rectangle(
+                    ctx,
+                    graphics::DrawMode::fill(),
+                    seg.pos.into(),
+                    [0.3, 0.3, 0.75, 1.0].into(),
+                )?;
+                graphics::draw(ctx, &rectangle, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
+            }
         }
         // And then we do the same for the head, instead making it fully red to distinguish it.
         let rectangle = graphics::Mesh::new_rectangle(

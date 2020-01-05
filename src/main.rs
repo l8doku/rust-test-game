@@ -354,42 +354,55 @@ impl Snake {
         for seg in self.body.iter() {
             // Again we set the color (in this case an orangey color)
             // and then draw the Rect that we convert that Segment's position into
-            if seg.dir == Direction::Right {
-                let rectangle = graphics::Mesh::new_rectangle(
-                    ctx,
-                    graphics::DrawMode::fill(),
-                    seg.pos.into(),
-                    [0.0, 0.0, 0.0, 1.0].into(),
-                )?;
-                graphics::draw(ctx, &rectangle, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
+
+            let top;
+            let left;
+            let width;
+            let height;
+            let color: graphics::Color;
+            match seg.dir {
+                Direction::Right => {
+                    top = 5;
+                    left = 0;
+                    width = 32;
+                    height = 22;
+                    color = [0.0, 0.0, 0.0, 1.0].into();
+                }
+                Direction::Up => {
+                    top = 0;
+                    left = 5;
+                    width = 22;
+                    height = 32;
+                    color = [0.3, 0.3, 0.25, 1.0].into();
+                }
+                Direction::Left => {
+                    top = 5;
+                    left = 0;
+                    width = 32;
+                    height = 22;
+                    color = [0.3, 0.3, 0.5, 1.0].into();
+                }
+                Direction::Down => {
+                    top = 0;
+                    left = 5;
+                    width = 22;
+                    height = 32;
+                    color = [0.3, 0.3, 1.0, 1.0].into();
+                }
             }
-            else if seg.dir == Direction::Up {
-                let rectangle = graphics::Mesh::new_rectangle(
-                    ctx,
-                    graphics::DrawMode::fill(),
-                    seg.pos.into(),
-                    [0.3, 0.3, 0.25, 1.0].into(),
-                )?;
-                graphics::draw(ctx, &rectangle, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
-            }
-            else if seg.dir == Direction::Left {
-                let rectangle = graphics::Mesh::new_rectangle(
-                    ctx,
-                    graphics::DrawMode::fill(),
-                    seg.pos.into(),
-                    [0.3, 0.3, 0.5, 1.0].into(),
-                )?;
-                graphics::draw(ctx, &rectangle, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
-            }
-            else if seg.dir == Direction::Down {
-                let rectangle = graphics::Mesh::new_rectangle(
-                    ctx,
-                    graphics::DrawMode::fill(),
-                    seg.pos.into(),
-                    [0.3, 0.3, 0.75, 1.0].into(),
-                )?;
-                graphics::draw(ctx, &rectangle, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
-            }
+            let bounds = graphics::Rect::new_i32(
+                    seg.pos.x as i32 * GRID_CELL_SIZE.0 as i32 + left as i32,
+                    seg.pos.y as i32 * GRID_CELL_SIZE.1 as i32 + top as i32,
+                    width as i32,
+                    height as i32,
+                );
+            let rectangle = graphics::Mesh::new_rectangle(
+                ctx,
+                graphics::DrawMode::fill(),
+                bounds,
+                color,
+            )?;
+            graphics::draw(ctx, &rectangle, (ggez::mint::Point2 { x: 0.0, y: 0.0 },))?;
         }
         // And then we do the same for the head, instead making it fully red to distinguish it.
         let rectangle = graphics::Mesh::new_rectangle(

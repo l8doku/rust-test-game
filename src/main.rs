@@ -429,6 +429,8 @@ struct GameState {
     /// And we track the last time we updated so that we can limit
     /// our update rate.
     last_update: Instant,
+
+    game_speed: f64,
 }
 
 impl GameState {
@@ -446,6 +448,7 @@ impl GameState {
             food: Food::new(food_pos),
             gameover: false,
             last_update: Instant::now(),
+            game_speed: 1.0,
         }
     }
 }
@@ -458,7 +461,7 @@ impl event::EventHandler for GameState {
     fn update(&mut self, _ctx: &mut Context) -> GameResult {
         // First we check to see if enough time has elapsed since our last update based on
         // the update rate we defined at the top.
-        if Instant::now() - self.last_update >= Duration::from_millis(MILLIS_PER_UPDATE) {
+        if (Instant::now() - self.last_update).as_secs_f64() * self.game_speed >= Duration::from_millis(MILLIS_PER_UPDATE).as_secs_f64() {
             // Then we check to see if the game is over. If not, we'll update. If so, we'll just do nothing.
             if !self.gameover {
                 // Here we do the actual updating of our game world. First we tell the snake to update itself,
@@ -473,6 +476,7 @@ impl event::EventHandler for GameState {
                         Ate::Food => {
                             let new_food_pos = GridPosition::random(GRID_SIZE.0, GRID_SIZE.1);
                             self.food.pos = new_food_pos;
+                            self.game_speed = self.game_speed * 1.1
                         }
                         // If it ate itself, we set our gameover state to true.
                         Ate::Itself => {
